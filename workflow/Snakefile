@@ -1,0 +1,8 @@
+import json
+
+rule solve:
+    input: 
+        constraints="data/constraints.json"
+    output: "data/solution.json"
+    threads: 1
+    script: "scripts/optimise.py"
