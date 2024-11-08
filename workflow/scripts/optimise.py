@@ -5,6 +5,12 @@ import os.path
 from os import PathLike, makedirs
 import yaml
 
+from snakemake import logging as snakemake_logging
+import logging
+
+# Get the Snakemake logger
+logger = logging.getLogger("snakemake")
+
 
 def load_gurobi_license(lic_path: PathLike) -> dict:
     """transform the WSL gurobi license file into a dictionary
@@ -27,6 +33,8 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
     print("starting")
 
     gurobi_options["LICENSEID"] = int(gurobi_options["LICENSEID"])
+    logger.info(f"optimize Using Gurobi configuration: {gurobi_cfg}")
+
     with grb.Env(params=gurobi_options) as env, grb.Model("simple_lp", env=env) as m:
         x = m.addVar(name="x", vtype=grb.GRB.CONTINUOUS)
         y = m.addVar(name="y", vtype=grb.GRB.CONTINUOUS)
@@ -49,6 +57,7 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
 def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, threads=1):
     gurobi_cfg = load_gurobi_license(license_path)
     gurobi_cfg["Threads"] = threads
+    logger.info(f"MAIN Using Gurobi configuration: {gurobi_cfg}")
     optimize(
         os.path.abspath(cfg_path),
         os.path.abspath(solution_path),
@@ -58,7 +67,7 @@ def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, th
 
 if __name__ == "__main__":
     gurobi_cfg = {"Threads": 1}
-    gurobi_cfg.update(load_gurobi_license(snakemake.input.license))
+    gurobi_cfg.update(load_gurobi_license(snakemake.input.license_file))
     # optimize(
     #     os.path.abspath("./data/constraints.json"),
     #     os.path.abspath("./data/solution.json"),

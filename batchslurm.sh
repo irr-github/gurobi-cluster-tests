@@ -5,6 +5,7 @@
 #SBATCH --error=slurmlogs/test-%j.er
 #SBATCH --mem=2048
 #SBATCH --nodes=1 
+#SBATCH --cores=2
 #SBATCH --qos=io
 
-snakemake --debug
+snakemake --debug --cores 1
