@@ -10,3 +10,22 @@ rule solve:
     threads: 1
     script:
         "scripts/optimise.py"
+
+
+from scripts.optimise import main as optimise
+
+
+rule solve_run:
+    input:
+        constraints="data/constraints.json",
+        license="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+    output:
+        "data/solution.json",
+    threads: 1
+    run:
+        optimise(
+            cfg_path=input.constraints,
+            license_path=input.license,
+            solution_path=output,
+            threads=threads,
+        )
