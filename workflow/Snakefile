@@ -1,8 +1,12 @@
 import json
 
+
 rule solve:
-    input: 
-        constraints="data/constraints.json"
-    output: "data/solution.json"
+    input:
+        constraints="data/constraints.json",
+        license="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+    output:
+        "data/solution.json",
     threads: 1
-    script: "scripts/optimise.py"
+    script:
+        "scripts/optimise.py"
