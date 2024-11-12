@@ -1,6 +1,7 @@
 import os.path
 import json
 import yaml
+
 # import sys,  traceback
 import os
 
@@ -8,8 +9,8 @@ import os
 import logging
 import gurobipy as grb
 
-from os import PathLike, makedirs # , environ
-from _helpers import mock_snakemake, configure_logging
+from os import PathLike, makedirs  # , environ
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,6 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
         logger.error(f"An exception occured: {e}")
         logger.error(f"An exception occured: {e}", exc_info=True)
 
-
     with grb.Env(params=gurobi_options) as env, grb.Model("simple_lp", env=env) as m:
         logger.info("Created Gurobi model")
         x = m.addVar(name="x", vtype=grb.GRB.CONTINUOUS)
@@ -63,7 +63,7 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
     with open(solution_path, "w") as f:
         json.dump(solution, f, indent=4)
 
-    logger.info("OK?")
+    logger.info(f"Wrote solution to {solution_path}")
 
 
 def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, threads=1):
@@ -79,18 +79,19 @@ def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, th
 
 
 if __name__ == "__main__":
+    from _helpers import mock_snakemake, configure_logging
+
     if "snakemake" not in globals():
         snakemake = mock_snakemake("solve")
 
     configure_logging(snakemake, skip_handlers=False)
 
-    logger.info(f"os env NUMEXPR MAX THR: {os.environ["NUMEXPR_MAX_THREADS"]}")
-    gurobi_cfg = load_gurobi_license("/p/projects/rd3mod/gurobi_rc/gurobi.lic")
+    gurobi_cfg = load_gurobi_license(snakemake.input.license_file)
     gurobi_cfg["Threads"] = 1
 
     optimize(
-        os.path.abspath("./data/constraints.json"),
-        os.path.abspath("./data/solution.json"),
+        snakemake.input.constraints,
+        snakemake.output,
         gurobi_cfg,
     )
     # optimize(snakemake.input.constraints, snakemake.output, gurobi_cfg)

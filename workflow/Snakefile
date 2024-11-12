@@ -15,34 +15,33 @@ logging.basicConfig(
 
 # include: "rules/test_sh.smk"
 
-# ======== DOES NOT WORK =========
-# rule module_load:
-#     shell:
-#         "source /p/system/modulefiles/defaults/piam/module_load_piam"
+# from scripts.optimise import main
 
-# ======== DOES NOT WORK =========
-# ISSUE IS THAT PATH AND GUROBI HOME ARE NOT KNOWN TO THE SNAKEMAKE SHELL
+# ### A simple test for the run option
 
-# ==== SMALLER VERSION
-# rule test_sh:
-#     shell:
-#         """
-#         PORT=1080
-#         ssh -fN -D $PORT $USER@login01
-#         # Find the PID of the tunnel using the specified port
-#         SSH_TUNNEL_PID=$(lsof -t -i :$PORT)l
-#         export https_proxy=socks5://127.0.0.1:1080
-#         export SSL_CERT_FILE=/p/projects/rd3mod/ssl/ca-bundle.pem_2022-02-08
-#         export GRB_CAFILE=/p/projects/rd3mod/ssl/ca-bundle.pem_2022-02-08
-#         export GUROBI_HOME="/p/projects/rd3mod/gurobi1103/linux64"
-#         export PATH="$PATH:${GUROBI_HOME}/bin"
-#         """
 
-# ==== FULL VERSION
+# rule solve_test:
+#     input:
+#         constraints="data/constraints.json",
+#         license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+#     output:
+#         "data/solution_test_run.json",
+#     threads: 1
+#     log:
+#         "logs/optimize.log",
+#     run:
+#         main(
+#             input.license_file,
+#             input.constraints,
+#             output[0],
+#         )
 
-# rule start_tunnel :
-#     shell:
-#         "scripts/start_tunnel.sh"
+
+rule log_test:
+    log:
+        "logs/test.log",
+    script:
+        "scripts/test_log.py"
 
 
 # ===== THE GUROBI PROBLEM TO SOLVE =====
@@ -53,16 +52,7 @@ rule solve:
     output:
         "data/solution.json",
     threads: 1
+    log:
+        "logs/optimize.log",
     script:
         "scripts/optimise.py"
-
-
-# ======== KILL TUNNEL ========
-# rule kill_tunnel:
-#     shell:
-#         """
-#         PORT=1080
-#         SSH_TUNNEL_PID=$(lsof -t -i :$PORT)l
-#         kill $SSH_TUNNEL_PID
-#         """
-# ruleorder: start_tunnel > solve > kill_tunnel

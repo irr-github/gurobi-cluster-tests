@@ -6,6 +6,7 @@ Simple tests to see whether we cna get gurobi to work on the PIK cluster with sn
 
 > **License**: 
 > - proper options need to be passed in order for the WSL license to be recognised. Otherwise you get a site mismatch id
+> *Best solution is to set the GUROBI env parameters, otherwise you may need to explicitly pass the parameters to an env
 > - license checking requires a connection to the internet, which is not available on the compute nodes
 > - number of cores allowed on the license is limited
 > - number of simultaneous gurobi instances is limited
