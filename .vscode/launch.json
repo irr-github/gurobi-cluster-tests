@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Py Gurobi: Current Fike",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "GUROBI_HOME":"/p/projects/rd3mod/gurobi1103/linux64",
+                "PATH":"${PATH}:${GUROBI_HOME}/bin",
+                "LD_LIBRARY_PATH":"${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib",
+                "GRB_LICENSE_FILE":"/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+                "GRB_CURLVERBOSE":"1",
+                "NUMEXPR_MAX_THREADS":"16",
+        },}
+    ]
+}

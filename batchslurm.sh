@@ -12,7 +12,7 @@
 
 #set up the tunnel to the login nodes (does not work well as a subprocess, even with source)
 PORT=1080
-ssh -fN -D $PORT $USER@login01
+ssh -fN -D $PORT $USER@login01 &
 
 export https_proxy=socks5://127.0.0.1:$PORT
 export SSL_CERT_FILE=/p/projects/rd3mod/ssl/ca-bundle.pem_2022-02-08
@@ -25,13 +25,14 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 export GRB_LICENSE_FILE=/p/projects/rd3mod/gurobi_rc/gurobi.lic
 export GRB_CURLVERBOSE=1
 
-# LICENSE max threads
-export NUMEXPR_MAX_THREADS=16
+export NUMEXPR_MAX_THREADS=4
 
-# check the license (FAILS due to core count)
-gurobi_cl --license &> gurobi.log
+# # check the license (FAILS due to core count)
+# gurobi_cl --license &> gurobi.log
+
+
 
 # PROFILE the machine (what gurobi license check does under the hood)
 # grbprobe &> gurobi.log
 
-snakemake --debug --cores 1 --use-conda
+snakemake --forcerun log_test
