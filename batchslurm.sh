@@ -28,7 +28,7 @@ export GRB_CURLVERBOSE=1
 export NUMEXPR_MAX_THREADS=4
 
 # # check the license (FAILS due to core count)
-# gurobi_cl --license &> gurobi.log
+# gurobi_cl --license &> logs/gurobi.log
 
 
 
