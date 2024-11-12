@@ -119,6 +119,9 @@ def configure_logging(snakemake, skip_handlers=False, level="INFO"):
     if "snakemake" not in globals():
         return
 
+    logger = logging.getLogger()
+    logger.info("Configuring logging")
+
     kwargs = snakemake.config.get("logging", dict())
     kwargs.setdefault("level", level)
 

@@ -34,14 +34,12 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
         data = json.load(f)
 
     logger.info(f"loaded: {data}")
+    if gurobi_options is None:
+        gurobi_options = {}
+    elif "LICENSEID" in gurobi_options:
+        gurobi_options["LICENSEID"] = int(gurobi_options["LICENSEID"])
 
-    gurobi_options["LICENSEID"] = int(gurobi_options["LICENSEID"])
     logger.info(f"optimize Using Gurobi configuration: {cfg_path}")
-    try:
-        raise ValueError("deliberate error raised")
-    except ValueError as e:
-        logger.error(f"An exception occured: {e}")
-        logger.error(f"An exception occured: {e}", exc_info=True)
 
     with grb.Env(params=gurobi_options) as env, grb.Model("simple_lp", env=env) as m:
         logger.info("Created Gurobi model")
@@ -60,6 +58,7 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
 
     if not os.path.exists(os.path.dirname(solution_path)):
         makedirs(os.path.dirname(solution_path))
+
     with open(solution_path, "w") as f:
         json.dump(solution, f, indent=4)
 
@@ -82,16 +81,16 @@ if __name__ == "__main__":
     from _helpers import mock_snakemake, configure_logging
 
     if "snakemake" not in globals():
-        snakemake = mock_snakemake("solve")
+        snakemake = mock_snakemake("solve_script")
 
     configure_logging(snakemake, skip_handlers=False)
-
+    logger.info("Reading license file")
     gurobi_cfg = load_gurobi_license(snakemake.input.license_file)
     gurobi_cfg["Threads"] = 1
 
     optimize(
         snakemake.input.constraints,
-        snakemake.output,
+        snakemake.output[0],
         gurobi_cfg,
     )
     # optimize(snakemake.input.constraints, snakemake.output, gurobi_cfg)

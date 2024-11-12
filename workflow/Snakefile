@@ -13,28 +13,20 @@ logging.basicConfig(
 )
 
 
-# include: "rules/test_sh.smk"
-
-# from scripts.optimise import main
-
-# ### A simple test for the run option
+# NOTE if the rules aren't chained only the first rule will be executed
 
 
-# rule solve_test:
-#     input:
-#         constraints="data/constraints.json",
-#         license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
-#     output:
-#         "data/solution_test_run.json",
-#     threads: 1
-#     log:
-#         "logs/optimize.log",
-#     run:
-#         main(
-#             input.license_file,
-#             input.constraints,
-#             output[0],
-#         )
+rule solve:
+    input:
+        constraints="data/constraints_copy.json",
+        license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+    output:
+        "data/solution_test_run.json",
+    threads: 1
+    log:
+        "logs/optimize.log",
+    script:
+        "scripts/optimise.py"
 
 
 rule log_test:
@@ -42,17 +34,3 @@ rule log_test:
         "logs/test.log",
     script:
         "scripts/test_log.py"
-
-
-# ===== THE GUROBI PROBLEM TO SOLVE =====
-rule solve:
-    input:
-        constraints="data/constraints.json",
-        license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
-    output:
-        "data/solution.json",
-    threads: 1
-    log:
-        "logs/optimize.log",
-    script:
-        "scripts/optimise.py"
