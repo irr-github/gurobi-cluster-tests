@@ -4,10 +4,7 @@
 #SBATCH --output=slurmlogs/test-%j.out
 #SBATCH --error=slurmlogs/test-%j.er
 #SBATCH --mem=2048
-#SBATCH --nodes=1-2
-#SBATCH --cores=1
 #SBATCH --qos=priority
-#SBATCH --ntasks=1    
 #SBATCH --cpus-per-task=4 
 
 #set up the tunnel to the login nodes (does not work well as a subprocess, even with source)
@@ -25,7 +22,9 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 export GRB_LICENSE_FILE=/p/projects/rd3mod/gurobi_rc/gurobi.lic
 export GRB_CURLVERBOSE=1
 
-export NUMEXPR_MAX_THREADS=4
+# avoid GUROBIPY complaining
+export NUMEXPR_MAX_THREADS=16
+
 
 # # check the license (FAILS due to core count)
 # gurobi_cl --license &> logs/gurobi.log
@@ -35,4 +34,4 @@ export NUMEXPR_MAX_THREADS=4
 # PROFILE the machine (what gurobi license check does under the hood)
 # grbprobe &> gurobi.log
 
-snakemake --forcerun log_test
+snakemake --use-conda
