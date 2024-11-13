@@ -6,6 +6,7 @@ from snakemake.utils import min_version
 # a version w cluster config is not yet available (may solve some of the issues w env)
 min_version("8.11")
 
+# THIS SETS ALL CONFIGS (Python not snakemake)
 logging.basicConfig(
     filename="workflow.log",
     level=logging.INFO,
@@ -13,56 +14,26 @@ logging.basicConfig(
 )
 
 
-# include: "rules/test_sh.smk"
-
-# ======== DOES NOT WORK =========
-# rule module_load:
-#     shell:
-#         "source /p/system/modulefiles/defaults/piam/module_load_piam"
-
-# ======== DOES NOT WORK =========
-# ISSUE IS THAT PATH AND GUROBI HOME ARE NOT KNOWN TO THE SNAKEMAKE SHELL
-
-# ==== SMALLER VERSION
-# rule test_sh:
-#     shell:
-#         """
-#         PORT=1080
-#         ssh -fN -D $PORT $USER@login01
-#         # Find the PID of the tunnel using the specified port
-#         SSH_TUNNEL_PID=$(lsof -t -i :$PORT)l
-#         export https_proxy=socks5://127.0.0.1:1080
-#         export SSL_CERT_FILE=/p/projects/rd3mod/ssl/ca-bundle.pem_2022-02-08
-#         export GRB_CAFILE=/p/projects/rd3mod/ssl/ca-bundle.pem_2022-02-08
-#         export GUROBI_HOME="/p/projects/rd3mod/gurobi1103/linux64"
-#         export PATH="$PATH:${GUROBI_HOME}/bin"
-#         """
-
-# ==== FULL VERSION
-
-# rule start_tunnel :
-#     shell:
-#         "scripts/start_tunnel.sh"
+# NOTE if the rules aren't chained only the first rule will be executed
 
 
-# ===== THE GUROBI PROBLEM TO SOLVE =====
 rule solve:
     input:
         constraints="data/constraints.json",
         license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
     output:
-        "data/solution.json",
+        "data/solution_test_run.json",
     threads: 1
+    log:
+        "logs/optimize.log",
     script:
         "scripts/optimise.py"
 
 
-# ======== KILL TUNNEL ========
-# rule kill_tunnel:
-#     shell:
-#         """
-#         PORT=1080
-#         SSH_TUNNEL_PID=$(lsof -t -i :$PORT)l
-#         kill $SSH_TUNNEL_PID
-#         """
-# ruleorder: start_tunnel > solve > kill_tunnel
+rule log_test:
+    log:
+        "logs/test.log",
+    input:
+        "data/solution_test_run.json",
+    script:
+        "scripts/test_log.py"
