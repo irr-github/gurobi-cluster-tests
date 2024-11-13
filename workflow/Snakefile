@@ -6,13 +6,7 @@ from snakemake.utils import min_version
 # a version w cluster config is not yet available (may solve some of the issues w env)
 min_version("8.11")
 
-# THIS SETS ALL CONFIGS (Python not snakemake)
-logging.basicConfig(
-    filename="workflow.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-
+# NOTE: do not set logging config here, use _helpers.configure_logging in each script main
 
 # NOTE if the rules aren't chained only the first rule will be executed
 
