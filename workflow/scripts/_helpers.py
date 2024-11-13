@@ -101,7 +101,7 @@ def mock_snakemake(
     return snakemake
 
 
-def configure_logging(snakemake, logger=None, skip_handlers=False, level="INFO"):
+def configure_logging(snakemake, logger=None, skip_handlers=False, level="INFO", fname=None):
     """
     Configure the basic behaviour for the logging module.
     Note: Must only be called once from the __main__ section of a script.
@@ -129,8 +129,15 @@ def configure_logging(snakemake, logger=None, skip_handlers=False, level="INFO")
         default_logfile = snakemake.log[0] if snakemake.log else fallback_path
         logfile = snakemake.log.get("python", default_logfile)
         logger.setLevel(kwargs["level"])
-        logger.addHandler(logging.StreamHandler())
-        logger.addHandler(logging.FileHandler(logfile))
+
+        formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s - %(message)s")
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+        file_handler = logging.FileHandler(logfile)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     # def handle_exception(exc_type, exc_value, exc_traceback):
     #     # Log the exception
