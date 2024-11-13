@@ -18,6 +18,14 @@ You will then need to add the contents of the public key `~/.ssh/id_rsa.cluster_
 In addition you should have your .profile setup as per https://gitlab.pik-potsdam.de/rse/rsewiki/-/wikis/Cluster-Access
 and add `module load anaconda/2024.10` (or latest) to it 
 
+# General usage
+- the sbatchslurm.sh is the main. It should be run as `sbatch sbatchslurm.sh` from the login nodes of the cluster. This is a temporary solution -> snakemake should ideally take care of slurm submission
+- the snakemake command in `sbatchslurm.sh` calls snakemake with options. This executes the snakemake workflow. Play around with the options!
+- the Snakefile configures the execution of the snakemake workflow
+
+# issues:
+- rules not running fully as expected
+  
 ## Challenges
 
 > **License**: 
@@ -26,6 +34,3 @@ and add `module load anaconda/2024.10` (or latest) to it
 > - license checking requires a connection to the internet, which is not available on the compute nodes
 > - number of cores allowed on the license is limited
 > - number of simultaneous gurobi instances is limited
-
-> **Snakemake**
-> - shell scripts not running as expected (need to delete .snakemake everytime)
