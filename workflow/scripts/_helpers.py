@@ -2,6 +2,7 @@ import logging
 import sys
 from pathlib import Path
 import os
+import traceback
 
 # from pypsa-eur code
 
@@ -100,7 +101,7 @@ def mock_snakemake(
     return snakemake
 
 
-def configure_logging(snakemake, skip_handlers=False, level="INFO"):
+def configure_logging(snakemake, logger=None, skip_handlers=False, level="INFO"):
     """
     Configure the basic behaviour for the logging module.
     Note: Must only be called once from the __main__ section of a script.
@@ -116,33 +117,41 @@ def configure_logging(snakemake, skip_handlers=False, level="INFO"):
         Do (not) skip the default handlers created for redirecting output to STDERR and file.
     """
 
-    if "snakemake" not in globals():
-        return
-
-    logger = logging.getLogger()
-    logger.info("Configuring logging")
+    if not logger:
+        logger = logging.getLogger()
+        logger.info("Configuring logging")
 
     kwargs = snakemake.config.get("logging", dict())
     kwargs.setdefault("level", level)
 
     if skip_handlers is False:
         fallback_path = Path(__file__).parent.joinpath("..", "logs", f"{snakemake.rule}.log")
-        logfile = snakemake.log.get("python", snakemake.log[0] if snakemake.log else fallback_path)
-        kwargs.update(
-            {
-                "handlers": [
-                    # Prefer the 'python' log, otherwise take the first log for each
-                    # Snakemake rule
-                    logging.FileHandler(logfile),
-                    logging.StreamHandler(),
-                ]
-            }
-        )
-    logging.basicConfig(**kwargs)
+        default_logfile = snakemake.log[0] if snakemake.log else fallback_path
+        logfile = snakemake.log.get("python", default_logfile)
+        logger.setLevel(kwargs["level"])
+        logger.addHandler(logging.StreamHandler())
+        logger.addHandler(logging.FileHandler(logfile))
+
+    # def handle_exception(exc_type, exc_value, exc_traceback):
+    #     # Log the exception
+    #     logger = logging.getLogger()
+    #     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    #     sys.excepthook = handle_exception
 
     def handle_exception(exc_type, exc_value, exc_traceback):
-        # Log the exception
-        logger = logging.getLogger()
-        logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+        # do not overload if KeyboardInterrupt
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
 
+        logger.error(
+            "".join(
+                [
+                    "Uncaught exception: ",
+                    *traceback.format_exception(exc_type, exc_value, exc_traceback),
+                ]
+            )
+        )
+
+    # Install exception handler
     sys.excepthook = handle_exception

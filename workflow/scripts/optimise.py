@@ -81,13 +81,14 @@ if __name__ == "__main__":
     from _helpers import mock_snakemake, configure_logging
 
     if "snakemake" not in globals():
-        snakemake = mock_snakemake("solve_script")
+        snakemake = mock_snakemake("solve")
 
-    configure_logging(snakemake, skip_handlers=False)
+    logger.info("PRE CONFIG TEST")
+    configure_logging(snakemake, logger=logger, skip_handlers=False)
     logger.info("Reading license file")
     gurobi_cfg = load_gurobi_license(snakemake.input.license_file)
     gurobi_cfg["Threads"] = 1
-
+    logger.info("Starting optimization")
     optimize(
         snakemake.input.constraints,
         snakemake.output[0],

@@ -25,13 +25,11 @@ export GRB_CURLVERBOSE=1
 # avoid GUROBIPY complaining
 export NUMEXPR_MAX_THREADS=16
 
-
 # # check the license (FAILS due to core count)
-# gurobi_cl --license &> logs/gurobi.log
-
+gurobi_cl --license &> logs/gurobi.log
 
 
 # PROFILE the machine (what gurobi license check does under the hood)
 # grbprobe &> gurobi.log
 
-snakemake --use-conda
+snakemake --use-conda --forcerun log_test
