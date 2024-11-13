@@ -28,8 +28,7 @@ export NUMEXPR_MAX_THREADS=16
 # # check the license (FAILS due to core count)
 gurobi_cl --license &> logs/gurobi.log
 
-
 # PROFILE the machine (what gurobi license check does under the hood)
 # grbprobe &> gurobi.log
 
-snakemake --use-conda --forcerun log_test
+snakemake --use-conda --debug --cores 1 --forcerun log_test

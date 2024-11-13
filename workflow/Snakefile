@@ -6,6 +6,7 @@ from snakemake.utils import min_version
 # a version w cluster config is not yet available (may solve some of the issues w env)
 min_version("8.11")
 
+# THIS SETS ALL CONFIGS (Python not snakemake)
 logging.basicConfig(
     filename="workflow.log",
     level=logging.INFO,
@@ -18,7 +19,7 @@ logging.basicConfig(
 
 rule solve:
     input:
-        constraints="data/constraints_copy.json",
+        constraints="data/constraints.json",
         license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
     output:
         "data/solution_test_run.json",
@@ -32,5 +33,7 @@ rule solve:
 rule log_test:
     log:
         "logs/test.log",
+    input:
+        "data/solution_test_run.json",
     script:
         "scripts/test_log.py"
