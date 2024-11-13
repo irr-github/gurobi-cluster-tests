@@ -10,13 +10,14 @@ import logging
 import gurobipy as grb
 
 from os import PathLike, makedirs  # , environ
-
+from _helpers import mock_snakemake, configure_logging
 
 logger = logging.getLogger(__name__)
 
 
 def load_gurobi_license(lic_path: PathLike) -> dict:
-    """transform the WSL gurobi license file into a dictionary
+    """transform the WSL gurobi license file into a dictionary that can
+    be used to set the gurobi env params. Not needed if env was set before
 
     Args:
         lic_path (PathLike): the path
@@ -29,11 +30,17 @@ def load_gurobi_license(lic_path: PathLike) -> dict:
     return dict([tuple(x.split("=")) for x in lic.split(" ")])
 
 
-def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
+def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict = None):
+    """a toy optimisation model to test gurobi + snakemake on the cluster
+
+    Args:
+        cfg_path (PathLike): constraints for the problem (json)
+        solution_path (PathLike): output path (json)
+        gurobi_options (dict, optional): gurobi env options
+    """
     with open(cfg_path) as f:
         data = json.load(f)
 
-    logger.info(f"loaded: {data}")
     if gurobi_options is None:
         gurobi_options = {}
     elif "LICENSEID" in gurobi_options:
@@ -66,6 +73,14 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict):
 
 
 def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, threads=1):
+    """A function that can be called by a snakemake rule 'run' instead of 'script'
+
+    Args:
+        license_path (PathLike): the path to the license (to set a gurobi env)
+        cfg_path (PathLike): the opt problem config (constraint, json)
+        solution_path (PathLike): output path
+        threads (int, optional): n threads to solve the problem. Defaults to 1.
+    """
     gurobi_cfg = load_gurobi_license(license_path)
     gurobi_cfg["Threads"] = threads
 
@@ -78,8 +93,10 @@ def main(license_path: PathLike, cfg_path: PathLike, solution_path: PathLike, th
 
 
 if __name__ == "__main__":
-    from _helpers import mock_snakemake, configure_logging
+    # ===== this will be called by snakemake rule script: optimise.py =====
 
+    # for debugging can emulate the snakemake script object created by snakemake
+    # rule needs to match
     if "snakemake" not in globals():
         snakemake = mock_snakemake("solve")
 
