@@ -19,9 +19,10 @@ In addition you should have your .profile setup as per https://gitlab.pik-potsda
 and add `module load anaconda/2024.10` (or latest) to it 
 
 # General usage
-- the sbatchslurm.sh is the main. It should be run as `sbatch sbatchslurm.sh` from the login nodes of the cluster. This is a temporary solution -> snakemake should ideally take care of slurm submission
-- the snakemake command in `sbatchslurm.sh` calls snakemake with options. This executes the snakemake workflow. Play around with the options!
+- the run_snakemake.sh is the main. It should be run as `sbatch run_snakemake.sh` from the login nodes of the cluster.
+    - snakemake takes care of further sbatch submissions but the gurobi license tunnel needs to be run from the compute nodes
 - the Snakefile configures the execution of the snakemake workflow
+- the config/pik_hpc_profile/config.yaml takes care of the ressource &qos allocation for each rule
 
 # issues:
 - rules not running fully as expected

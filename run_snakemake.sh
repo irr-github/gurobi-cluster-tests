@@ -8,6 +8,7 @@
 #SBATCH --cpus-per-task=4 
 
 #set up the tunnel to the login nodes (does not work well as a subprocess, even with source)
+source activate pypsa-china
 PORT=1080
 ssh -fN -D $PORT $USER@login01 &
 
@@ -22,13 +23,4 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 export GRB_LICENSE_FILE=/p/projects/rd3mod/gurobi_rc/gurobi.lic
 export GRB_CURLVERBOSE=1
 
-# avoid GUROBIPY complaining
-export NUMEXPR_MAX_THREADS=16
-
-# # check the license (FAILS due to core count)
-gurobi_cl --license &> logs/gurobi.log
-
-# PROFILE the machine (what gurobi license check does under the hood)
-# grbprobe &> gurobi.log
-
-snakemake --use-conda --debug --cores 1
+snakemake --profile config/pik_hpc_profile/
