@@ -1,33 +1,33 @@
-import json
-import logging
-from snakemake.utils import min_version
-
-# ==== RUN ME through sbatch batchslurm.sh ====
-# a version w cluster config is not yet available (may solve some of the issues w env)
-min_version("8.11")
-
-# NOTE: do not set logging config here, use _helpers.configure_logging in each script main
-
-# NOTE if the rules aren't chained only the first rule will be executed
+import os
 
 
-rule solve:
+envvars:
+    "LD_LIBRARY_PATH",
+    "PATH",
+    "GUROBI_HOME",
+
+
+rule io_test:
     input:
-        constraints="data/constraints.json",
-        license_file="/p/projects/rd3mod/gurobi_rc/gurobi.lic",
+        "env_output.txt",
     output:
-        "data/solution_test_run.json",
-    threads: 1
-    log:
-        "logs/optimize.log",
-    script:
-        "scripts/optimise.py"
+        "io_output.txt",
+    # params:
+    shell:
+        """
+        echo "input file was {input}" >> {output}
+        echo "$(date +"%Y-%m-%d") $(date +"%H:%M:%S")" >> {output}
+        echo "Current hostname: $(hostname)" >> {output}
+        """
 
 
-rule log_test:
-    log:
-        "logs/test.log",
-    input:
-        "data/solution_test_run.json",
-    script:
-        "scripts/test_log.py"
+# def set_up_env(use_tunnel = True)
+rule set_up_env:
+    output:
+        "env_output.txt",
+    # params:
+    shell:
+        """
+        echo "$(date +"%Y-%m-%d") $(date +"%H:%M:%S")" >> {output}
+        echo "Current hostname: $(hostname)" >> {output}
+        """
