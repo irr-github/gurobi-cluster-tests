@@ -10,10 +10,11 @@ min_version("8.11")
 
 # NOTE if the rules aren't chained only the first rule will be executed
 
-
+# by default, only the first rule is executed (unless default_target is specified)
 rule io_test:
     input:
         "data/solution_test_run.json",
+    default_target: True
     output:
         "io_output.txt",
     # params:
