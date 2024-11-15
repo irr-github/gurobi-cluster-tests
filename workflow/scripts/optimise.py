@@ -8,7 +8,8 @@ import os
 # order!
 import logging
 import gurobipy as grb
-
+import socket
+import subprocess, sys, socket
 from os import PathLike, makedirs  # , environ
 from _helpers import mock_snakemake, configure_logging
 
@@ -53,9 +54,8 @@ def optimize(cfg_path: PathLike, solution_path: PathLike, gurobi_options: dict =
         x = m.addVar(name="x", vtype=grb.GRB.CONTINUOUS)
         y = m.addVar(name="y", vtype=grb.GRB.CONTINUOUS)
 
+        # obj & constraints
         m.setObjective(x + y, grb.GRB.MAXIMIZE)
-
-        # constraints
         m.addConstr(x + 2 * y <= data["constraint_1"], "c0")
 
         m.optimize()
@@ -100,12 +100,15 @@ if __name__ == "__main__":
     if "snakemake" not in globals():
         snakemake = mock_snakemake("solve")
 
-    logger.info("PRE CONFIG TEST")
     configure_logging(snakemake, logger=logger, skip_handlers=False)
+    logger.info("==========NEW RUN ==========")
+    logger.info(f"host name is {socket.gethostname()}")
     logger.info("Reading license file")
+    setup_tunnel_and_env()
     gurobi_cfg = load_gurobi_license(snakemake.input.license_file)
     gurobi_cfg["Threads"] = 1
     logger.info("Starting optimization")
+    gurobi_cfg = None
     optimize(
         snakemake.input.constraints,
         snakemake.output[0],
