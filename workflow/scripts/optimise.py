@@ -8,17 +8,16 @@ import os
 # order!
 import logging
 import gurobipy as grb
-import socket
-import subprocess, sys, socket
+import socket socket
 from os import PathLike, makedirs  # , environ
-from _helpers import mock_snakemake, configure_logging
+from _helpers import mock_snakemake, configure_logging, setup_gurobi_tunnel_and_env
 
 logger = logging.getLogger(__name__)
 
 
 def load_gurobi_license(lic_path: PathLike) -> dict:
     """transform the WSL gurobi license file into a dictionary that can
-    be used to set the gurobi env params. Not needed if env was set before
+    be used to set the gurobi env params. Not NEEDED if ENV was set before
 
     Args:
         lic_path (PathLike): the path
@@ -27,7 +26,7 @@ def load_gurobi_license(lic_path: PathLike) -> dict:
         dict: a dictionary
     """
     # license looks like: ARG1=VAL1 ARG2=VAL2
-    lic = yaml.load(open("/p/projects/rd3mod/gurobi_rc/gurobi.lic", "r"), Loader=yaml.FullLoader)
+    lic = yaml.load(open(lic_path, "r"), Loader=yaml.FullLoader)
     return dict([tuple(x.split("=")) for x in lic.split(" ")])
 
 
